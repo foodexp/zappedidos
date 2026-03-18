@@ -180,21 +180,26 @@ function enviarWhatsApp(){
   let msg = '🛒 *Novo Pedido*%0A%0A';
   let total = 0;
 
-  carrinho.forEach(p=>{
+msg += `📋 *RESUMO DO PEDIDO*%0A`;
+msg += `━━━━━━━━━━━━━━━━━━%0A%0A`;
+
+carrinho.forEach((p, i)=>{
   const subtotal = p.preco * p.qtd;
 
-  msg += `🧾 *${p.nome}*%0A`;
-  msg += `   ➤ Quantidade: ${p.qtd}%0A`;
-  msg += `   ➤ Valor: R$${p.preco}%0A`;
-  msg += `   ➤ Subtotal: R$${subtotal}%0A%0A`;
+  msg += `🔹 *Item ${i+1}: ${p.nome}*%0A`;
+  msg += `   🧮 Qtd: ${p.qtd}%0A`;
+  msg += `   💵 Unit: R$${p.preco}%0A`;
+  msg += `   📊 Subtotal: R$${subtotal}%0A%0A`;
 
   total += subtotal;
 });
 
-msg += `━━━━━━━━━━━━━━%0A`;
-msg += `💰 *TOTAL: R$${total}*%0A`;
-msg += `━━━━━━━━━━━━━━%0A`;
-
+msg += `━━━━━━━━━━━━━━━━━━%0A`;
+msg += `💰 *TOTAL GERAL: R$${total}*%0A`;
+msg += `━━━━━━━━━━━━━━━━━━%0A`;
+msg += `🙏 Obrigado pela preferência!`;
+msg += `%0A%0A📦 Pedido automático via sistema`;
+msg += `%0A🚀 ZapPedidos`;
   const numero = '5591980208294';
   window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
 }
