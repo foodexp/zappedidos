@@ -161,18 +161,39 @@ function atualizarCarrinho(){
 
   document.getElementById('total').innerText = total;
 }
+function gerarCodigoPedido(){
+  let contador = localStorage.getItem('pedido_contador');
 
+  if(!contador){
+    contador = 1;
+  } else {
+    contador = parseInt(contador) + 1;
+  }
+
+  localStorage.setItem('pedido_contador', contador);
+
+  const ano = new Date().getFullYear();
+
+  return `${ano}${String(contador).padStart(3,'0')}`;
+}
 function enviarWhatsApp(){
-  const numeroPedido = gerarNumeroPedido();
-  let msg = `🛒 *Novo Pedido*%0A📦 Pedido: ${numeroPedido}%0A%0A`;
+  let msg = '🛒 *Novo Pedido*%0A%0A';
   let total = 0;
 
   carrinho.forEach(p=>{
-    msg += `• ${p.nome} x${p.qtd} - R$${p.preco * p.qtd}%0A`;
-    total += p.preco * p.qtd;
-  });
+  const subtotal = p.preco * p.qtd;
 
-  msg += `%0A💰 *Total:* R$${total}`;
+  msg += `🧾 *${p.nome}*%0A`;
+  msg += `   ➤ Quantidade: ${p.qtd}%0A`;
+  msg += `   ➤ Valor: R$${p.preco}%0A`;
+  msg += `   ➤ Subtotal: R$${subtotal}%0A%0A`;
+
+  total += subtotal;
+});
+
+msg += `━━━━━━━━━━━━━━%0A`;
+msg += `💰 *TOTAL: R$${total}*%0A`;
+msg += `━━━━━━━━━━━━━━%0A`;
 
   const numero = '5591980208294';
   window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
