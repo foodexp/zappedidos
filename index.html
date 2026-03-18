@@ -291,9 +291,14 @@ let favoritos = JSON.parse(localStorage.getItem('favoritos')) || [];
     }
 
     function renderProdutos() {
-      const container = document.getElementById('produtos');
+  const busca = document.getElementById('search').value.toLowerCase();
+  const container = document.getElementById('produtos');
+  container.innerHTML = '';
 
-      container.innerHTML = produtos.map(prod => `
+  produtos
+    .filter(p => p.nome.toLowerCase().includes(busca))
+    .forEach(prod => {
+      container.innerHTML += `
         <div class="bg-white p-3 rounded-xl shadow relative">
 
           <button onclick="toggleFavorito(${prod.id})"
@@ -309,9 +314,14 @@ let favoritos = JSON.parse(localStorage.getItem('favoritos')) || [];
           <p class="text-green-600 font-bold mt-2">
             R$ ${prod.preco}
           </p>
+
+          <button onclick="add(${prod.id})" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl mt-2 transition">
+            Adicionar ao carrinho
+          </button>
         </div>
-      `).join('');
-    }
+      `;
+    });
+}
 
 renderProdutos();
 atualizarQtd();
