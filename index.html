@@ -177,33 +177,39 @@ function gerarCodigoPedido(){
   return `${ano}${String(contador).padStart(3,'0')}`;
 }
 function enviarWhatsApp(){
-  let msg = '🛒 *Novo Pedido*%0A%0A';
   let total = 0;
+  const codigo = gerarCodigoPedido();
 
-msg += `📋 *RESUMO DO PEDIDO*%0A`;
-msg += `━━━━━━━━━━━━━━━━━━%0A%0A`;
+  let msg = '';
 
-carrinho.forEach((p, i)=>{
-  const subtotal = p.preco * p.qtd;
+  msg += `🛒 *NOVO PEDIDO*%0A`;
+  msg += `━━━━━━━━━━━━━━━━━━%0A`;
+  msg += `📦 Pedido: *${codigo}*%0A`;
+  msg += `📅 ${new Date().toLocaleDateString('pt-BR')}%0A`;
+  msg += `⏰ ${new Date().toLocaleTimeString('pt-BR')}%0A`;
+  msg += `📌 Status: *Aguardando confirmação*%0A`;
+  msg += `━━━━━━━━━━━━━━━━━━%0A%0A`;
 
-  msg += `🔹 *Item ${i+1}: ${p.nome}*%0A`;
-  msg += `   🧮 Qtd: ${p.qtd}%0A`;
-  msg += `   💵 Unit: R$${p.preco}%0A`;
-  msg += `   📊 Subtotal: R$${subtotal}%0A%0A`;
+  msg += `📋 *RESUMO DO PEDIDO*%0A%0A`;
 
-  total += subtotal;
-});
+  carrinho.forEach((p)=>{
+    const subtotal = p.preco * p.qtd;
 
-msg += `━━━━━━━━━━━━━━━━━━%0A`;
-msg += `💰 *TOTAL GERAL: R$${total}*%0A`;
-msg += `━━━━━━━━━━━━━━━━━━%0A`;
-msg += `🙏 Obrigado pela preferência!`;
-msg += `%0A%0A📦 Pedido automático via sistema`;
-msg += `%0A🚀 ZapPedidos`;
+    msg += `🔸 *${p.nome}*%0A`;
+    msg += `   🧮 Qtd: ${p.qtd} | 💵 R$${p.preco}%0A`;
+    msg += `   📊 Subtotal: *R$${subtotal}*%0A%0A`;
+
+    total += subtotal;
+  });
+
+  msg += `━━━━━━━━━━━━━━━━━━%0A`;
+  msg += `💰 *TOTAL GERAL: R$${total}*%0A`;
+  msg += `━━━━━━━━━━━━━━━━━━%0A`;
+
   const numero = '5591980208294';
+
   window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
 }
-
 // eventos
 
 document.getElementById('search').addEventListener('input', renderProdutos);
