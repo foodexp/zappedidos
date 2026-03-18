@@ -162,31 +162,13 @@ function atualizarCarrinho(){
   document.getElementById('total').innerText = total;
 }
 
-function gerarNumeroPedido(){
-  const ano = new Date().getFullYear();
-  let ultimo = localStorage.getItem('ultimoPedido') || 0;
-  ultimo = parseInt(ultimo) + 1;
-  localStorage.setItem('ultimoPedido', ultimo);
-
-  return `${ano}${String(ultimo).padStart(3,'0')}`;
-}
-
 function enviarWhatsApp(){
   const numeroPedido = gerarNumeroPedido();
-
   let msg = `🛒 *Novo Pedido*%0A📦 Pedido: ${numeroPedido}%0A%0A`;
   let total = 0;
 
   carrinho.forEach(p=>{
     msg += `• ${p.nome} x${p.qtd} - R$${p.preco * p.qtd}%0A`;
-    total += p.preco * p.qtd;
-  });
-
-  msg += `%0A💰 *Total:* R$${total}`;
-
-  const numero = '5591999999999';
-  window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
-} x${p.qtd} - R$${p.preco * p.qtd}%0A`;
     total += p.preco * p.qtd;
   });
 
