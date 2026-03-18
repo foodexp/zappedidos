@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZapPedidos</title>
+  <title>Pedidos-20</title>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -30,7 +30,7 @@
 <!-- HEADER -->
 <header class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
   <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
-    <h1 class="text-2xl font-bold text-green-600 tracking-tight">ZapPedidos</h1>
+    <h1 class="text-2xl font-bold text-green-600 tracking-tight">Pedidos-20</h1>
     <input id="search" placeholder="Buscar..." class="border px-4 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition" />
   </div>
 </header>
@@ -47,13 +47,15 @@
 <main id="produtos" class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></main>
 
 <!-- BOTÃO FIXO -->
-<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-6xl px-6">
-  <button onclick="abrirCarrinho()" class="w-full flex justify-between items-center bg-green-600 hover:bg-green-700 text-white p-4 rounded-2xl shadow-xl transition">
-    <span class="font-semibold">🛒 Ver Carrinho</span>
-    <span class="bg-white text-green-600 px-3 py-1 rounded-full text-sm font-bold" id="qtd">0</span>
+<div class="fixed top-4 right-4 z-50">
+  <button onclick="abrirCarrinho()" 
+    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full shadow-xl transition">
+
+    <span>🛒</span>
+    <span id="qtd" class="bg-white text-green-600 px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+    
   </button>
 </div>
-
 <!-- MODAL -->
 <div id="modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
   <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl fade-in">
