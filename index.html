@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZapPedidos</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonte -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    .fade-in {
+      animation: fadeIn .4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100">
+
+<!-- HEADER -->
+<header class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+    <h1 class="text-2xl font-bold text-green-600 tracking-tight">ZapPedidos</h1>
+    <input id="search" placeholder="Buscar..." class="border px-4 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition" />
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto p-6">
+  <div class="bg-gradient-to-r from-green-600 via-green-500 to-green-400 text-white p-8 rounded-3xl shadow-xl">
+    <h2 class="text-3xl font-bold">Peça online com facilidade 🚀</h2>
+    <p class="mt-2 text-sm opacity-90">Experiência rápida, moderna e sem taxas</p>
+  </div>
+</section>
+
+<!-- PRODUTOS -->
+<main id="produtos" class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></main>
+
+<!-- BOTÃO FIXO -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-6xl px-6">
+  <button onclick="abrirCarrinho()" class="w-full flex justify-between items-center bg-green-600 hover:bg-green-700 text-white p-4 rounded-2xl shadow-xl transition">
+    <span class="font-semibold">🛒 Ver Carrinho</span>
+    <span class="bg-white text-green-600 px-3 py-1 rounded-full text-sm font-bold" id="qtd">0</span>
+  </button>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+  <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl fade-in">
+    <h2 class="text-xl font-bold mb-4">Seu Pedido</h2>
+    <ul id="lista" class="space-y-4 text-sm"></ul>
+
+    <div class="mt-4 border-t pt-4 flex justify-between font-bold text-lg">
+      <span>Total</span>
+      <span>R$ <span id="total">0</span></span>
+    </div>
+
+    <button onclick="enviarWhatsApp()" class="mt-5 w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-xl font-semibold transition">
+      Finalizar Pedido
+    </button>
+
+    <button onclick="fecharCarrinho()" class="mt-2 w-full bg-gray-200 p-2 rounded-xl">
+      Fechar
+    </button>
+  </div>
+</div>
+
+<script>
+const produtos = [
+  {id:1, nome:'X-Burguer', preco:15, img:'https://via.placeholder.com/300'},
+  {id:2, nome:'Coca-Cola', preco:5, img:'https://via.placeholder.com/300'},
+  {id:3, nome:'Batata Frita', preco:10, img:'https://via.placeholder.com/300'}
+];
+
+let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+function salvar(){ localStorage.setItem('carrinho', JSON.stringify(carrinho)); }
+
+function renderProdutos(){
+  const div = document.getElementById('produtos');
+  const busca = document.getElementById('search').value.toLowerCase();
+  div.innerHTML = '';
+
+  produtos
+    .filter(p=>p.nome.toLowerCase().includes(busca))
+    .forEach(p=>{
+      div.innerHTML += `
+        <div class="bg-white rounded-3xl shadow-md hover:shadow-xl transition overflow-hidden fade-in">
+          <img src="${p.img}" class="w-full h-40 object-cover" />
+          <div class="p-4">
+            <h3 class="font-semibold text-lg">${p.nome}</h3>
+            <p class="text-gray-500 text-sm mb-3">R$ ${p.preco}</p>
+            <button onclick="add(${p.id})" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl transition">
+              Adicionar ao carrinho
+            </button>
+          </div>
+        </div>
+      `;
+    });
+}
+
+function add(id){
+  const item = carrinho.find(p=>p.id===id);
+  if(item){ item.qtd++; }
+  else {
+    const prod = produtos.find(p=>p.id===id);
+    carrinho.push({...prod, qtd:1});
+  }
+  atualizarQtd();
+  salvar();
+}
+
+function remover(id){
+  carrinho = carrinho.filter(p=>p.id!==id);
+  atualizarCarrinho();
+  atualizarQtd();
+  salvar();
+}
+
+function atualizarQtd(){
+  const total = carrinho.reduce((acc,p)=>acc+p.qtd,0);
+  document.getElementById('qtd').innerText = total;
+}
+
+function abrirCarrinho(){
+  document.getElementById('modal').classList.remove('hidden');
+  atualizarCarrinho();
+}
+
+function fecharCarrinho(){
+  document.getElementById('modal').classList.add('hidden');
+}
+
+function atualizarCarrinho(){
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+  let total = 0;
+
+  carrinho.forEach(p=>{
+    total += p.preco * p.qtd;
+    lista.innerHTML += `
+      <li class="flex justify-between items-center">
+        <div>
+          <p class="font-medium">${p.nome} x${p.qtd}</p>
+          <small class="text-gray-500">R$ ${p.preco}</small>
+        </div>
+        <button onclick="remover(${p.id})" class="text-red-500 text-sm">Remover</button>
+      </li>
+    `;
+  });
+
+  document.getElementById('total').innerText = total;
+}
+
+function enviarWhatsApp(){
+  let msg = '🛒 *Novo Pedido*%0A%0A';
+  let total = 0;
+
+  carrinho.forEach(p=>{
+    msg += `• ${p.nome} x${p.qtd} - R$${p.preco * p.qtd}%0A`;
+    total += p.preco * p.qtd;
+  });
+
+  msg += `%0A💰 *Total:* R$${total}`;
+
+  const numero = '5591980208294';
+  window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
+}
+
+// eventos
+
+document.getElementById('search').addEventListener('input', renderProdutos);
+
+renderProdutos();
+atualizarQtd();
+</script>
+
+</body>
+</html>
