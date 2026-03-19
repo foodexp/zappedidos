@@ -58,7 +58,100 @@ const produtos = [
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
 function salvar(){ localStorage.setItem('carrinho', JSON.stringify(carrinho)); }
+function imprimirPedido() {
+  const codigo = gerarCodigoPedido();
+  let total = 0;
 
+  const linhasProdutos = carrinho.map(p => {
+    const subtotal = p.preco * p.qtd;
+    total += subtotal;
+    return `<tr>
+              <td style="padding:5px 0;">${p.nome}</td>
+              <td style="text-align:center;">${p.qtd}</td>
+              <td style="text-align:right;">R$ ${subtotal.toFixed(2)}</td>
+            </tr>`;
+  }).join('');
+
+  // CNPJ fake
+  const cnpjFake = "12.345.678/0001-90";
+
+  const htmlPedido = `
+    <div id="pedido" style="font-family: 'Courier New', monospace; width: 300px; margin:auto; padding:10px; font-size:12px; color:#000;">
+
+  <div style="text-align:center;">
+    <strong>PEDIDOS20 LANCHES</strong><br>
+    CNPJ: ${cnpjFake}<br>
+    Rua Exemplo, 123<br>
+    Ananindeua - PA<br>
+    Tel: (91) 99999-9999
+  </div>
+
+  <div style="margin:8px 0;">
+    ============================
+  </div>
+
+<div style="display:flex; justify-content:center; margin-bottom:5px;">
+  <div style="font-size:22px; font-weight:bold; text-align:center;">
+    Pedido: ${codigo}
+  </div>
+</div>
+
+<strong style="display:block; text-align:center;">CUPOM NÃO FISCAL</strong><br>
+
+Tipo: ${opcaoConsumo}<br>
+Data: ${new Date().toLocaleDateString('pt-BR')}<br>
+Hora: ${new Date().toLocaleTimeString('pt-BR')}<br>
+Caixa: 01<br>
+Operador: SISTEMA
+
+  <div style="margin:8px 0;">
+    ----------------------------
+  </div>
+      <hr style="border:none; border-top:1px dashed #aaa; margin:10px 0;">
+      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Produto</th>
+            <th style="text-align:center;">Qtd</th>
+            <th style="text-align:right;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${linhasProdutos}
+        </tbody>
+      </table>
+      <hr style="border:none; border-top:1px dashed #aaa; margin:10px 0;">
+      <div style="text-align:right; font-size:16px; font-weight:bold; color:#00000;">
+        Total: R$ ${total.toFixed(2)}
+      </div>
+      <div id="qrcode" style="margin:15px auto; width:100px; height:100px;"></div>
+      <p style="text-align:center; font-size:12px; color:#999; margin-top:10px;">
+        Obrigado pela preferência! 🍽️
+      </p>
+    </div>
+  `;
+
+  const printWindow = window.open('', '', 'width=400,height=650');
+  printWindow.document.write(`<html><head><title>Pedido ${codigo}</title></head><body>${htmlPedido}</body></html>`);
+  printWindow.document.close();
+
+  const script = printWindow.document.createElement("script");
+  script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+  script.onload = function() {
+    new printWindow.QRCode(printWindow.document.getElementById("qrcode"), {
+      text: `Pedido: ${codigo} | Total: R$${total.toFixed(2)}`,
+      width: 100,
+      height: 100,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: printWindow.QRCode.CorrectLevel.H
+    });
+
+    printWindow.focus();
+    printWindow.print();
+  };
+  printWindow.document.body.appendChild(script);
+}
 function renderProdutos(){
   const div = document.getElementById('produtos');
   const busca = document.getElementById('search').value.toLowerCase();
@@ -152,15 +245,22 @@ function gerarCodigoPedido(){
     contador = parseInt(contador) + 1;
   }
 
+  // Limite até 300 (opcional)
+  if(contador > 300){
+    contador = 1; // reinicia
+  }
+
   localStorage.setItem('pedido_contador', contador);
 
-  const ano = new Date().getFullYear();
-
-  return `${ano}${String(contador).padStart(3,'0')}`;
+  // Retorna só 001, 002, 003...
+  return String(contador).padStart(3, '0');
 }
+
 function enviarWhatsApp(){
   let total = 0;
   const codigo = gerarCodigoPedido();
+  
+  msg += `🍴 Opção: *${opcaoConsumo}*%0A`;
 
   let msg = '';
 
@@ -239,6 +339,43 @@ let favoritos = JSON.parse(localStorage.getItem('favoritos')) || [];
         </div>
       `;
     });
+}
+let opcaoConsumo = 'Levar'; // padrão
+
+document.getElementById('opcao-levar').addEventListener('click', () => {
+  opcaoConsumo = 'Levar';
+  atualizarOpcaoUI();
+});
+
+document.getElementById('opcao-comer').addEventListener('click', () => {
+  opcaoConsumo = 'Consumir no local';
+  atualizarOpcaoUI();
+});
+
+function atualizarOpcaoUI() {
+  document.getElementById('opcao-levar').classList.remove('bg-green-500', 'text-white');
+  document.getElementById('opcao-comer').classList.remove('bg-green-500', 'text-white');
+  document.getElementById('opcao-levar').classList.add('bg-gray-200', 'text-black');
+  document.getElementById('opcao-comer').classList.add('bg-gray-200', 'text-black');
+
+  if(opcaoConsumo === 'Levar') {
+    document.getElementById('opcao-levar').classList.add('bg-green-500', 'text-white');
+  } else {
+    document.getElementById('opcao-comer').classList.add('bg-green-500', 'text-white');
+  }
+}
+function atualizarOpcaoUI() {
+  const levar = document.getElementById('opcao-levar');
+  const comer = document.getElementById('opcao-comer');
+
+  levar.classList.remove('btn-ativo');
+  comer.classList.remove('btn-ativo');
+
+  if (opcaoConsumo === 'Levar') {
+    levar.classList.add('btn-ativo');
+  } else {
+    comer.classList.add('btn-ativo');
+  }
 }
 
 renderProdutos();
